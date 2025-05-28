@@ -1,5 +1,6 @@
+"use client";
 import * as React from "react"
-
+import { useState } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -15,61 +16,62 @@ import {
 } from "@/components/ui/sidebar"
 import { VersionSwitcher } from "./VersionSwitcher"
 import { SearchForm } from "./SearchForm"
-import { Button } from "../ui/button"
+import { AlertDialogTrigger } from "../ui/alert-dialog"
+import ClearChatAlert from "../modals/ClearChatAlert"
+import useStateContext from "@/provider/state-provider"
+import { Trash2 } from "lucide-react";
+import NewChatModal from "../modals/NewChatModal";
+import { selectChat } from "@/provider/reducer";
 
-// This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "History",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-          isActive: true
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-  ],
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { history, selectedIndex, dispatch } = useStateContext()
+  const [query, setQuery] = useState("");
+  const filteredHistory = history.filter(chat => chat.title.toLowerCase().includes(query.toLowerCase()));
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
+        <VersionSwitcher />
+        <SearchForm
+          query={query}
+          setQuery={setQuery}
         />
-        <SearchForm />
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((item) => (
-          <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className="h-auto px-4 py-[8px] mb-1 rounded-[4px]" isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <SidebarGroup>
+          <NewChatModal />
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>History</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {filteredHistory.map((chat, index) => (
+                <SidebarMenuItem key={index}>
+                  <SidebarMenuButton
+                    asChild
+                    className="h-auto px-4 py-[8px] mb-1 rounded-[4px] cursor-pointer"
+                    isActive={index === selectedIndex}
+                  >
+                    <div>
+                      <div onClick={() => dispatch(selectChat(index))} className="mr-auto grow">{chat.title}</div>
+                      <ClearChatAlert index={index}>
+                        <AlertDialogTrigger className="cursor-pointer">
+                          <Trash2 className="w-[16px] h-[16px] text-[var(--accent-1)]" />
+                        </AlertDialogTrigger>
+                      </ClearChatAlert>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        <Button className="cursor-pointer !bg-[var(--accent-1)] opacity-60 hover:opacity-100" variant="destructive">Clear</Button>
+        <ClearChatAlert>
+          <AlertDialogTrigger className="cursor-pointer !bg-[var(--accent-1)] py-[6px] opacity-60 hover:opacity-100 rounded-[8px]">Clear Chats</AlertDialogTrigger>
+        </ClearChatAlert>
       </SidebarFooter>
     </Sidebar>
   )

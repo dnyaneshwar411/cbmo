@@ -2,30 +2,41 @@ export interface Message {
   id: string
   role: "user" | "bot"
   content: string
-  file: File | undefined
+  file?: File | undefined
 }
 
-interface History {
+export interface History {
+  id: number
   messages: Message[]
-  started: string
+  title: string
+  started: Date
 }
 
 export interface ChatState {
-  state: "ready" | "requesting" | "streaming"
+  state: "init" | "ready" | "requesting" | "streaming"
   query: string
   answer: string
   messages: Message[]
   isTyping: boolean
   error: string | null
-  history: History[] // to be done
+  history: History[], // to be done
+  selectedIndex: number
 }
 
+export const initChat = {
+  id: Date.now(),
+  messages: [],
+  title: "Welcome",
+  started: new Date()
+};
+
 export const initialState: ChatState = {
-  state: "ready",
+  state: "init",
   query: "",
   answer: "",
   messages: [],
   isTyping: false,
   error: null,
-  history: []
+  history: [],
+  selectedIndex: 0
 }

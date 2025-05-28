@@ -1,14 +1,10 @@
 import { AppSidebar } from "@/components/core/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import ChatProvider from "@/components/core/ChatProvider"
+import { StateContextProvider } from "@/provider/state-provider";
 
 export default function Home() {
-  return (
-    <main className="h-screen mx-auto flex flex-col">
-      <SidebarProvider>
-        <AppSidebar />
-        <ChatProvider />
-      </SidebarProvider>
-    </main>
-  );
+  return (<StateContextProvider>
+    <AppSidebar />
+    <ChatProvider />
+  </StateContextProvider>);
 }
