@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import ThemeToggleButton from "./ThemeToggleButton"
 
-export function VersionSwitcher() {
+export function Branding() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>

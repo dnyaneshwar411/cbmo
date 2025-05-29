@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { MessageContainer } from "../chat/MessageContainer";
 import SearchInput from "../chat/SearchInput";
 import useStateContext from "@/provider/state-provider";
+import { SidebarTrigger } from "../ui/sidebar";
 
 export default function ChatProvider() {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -16,6 +17,7 @@ export default function ChatProvider() {
   }, [selectedIndex, answer])
 
   return <div className="flex flex-col grow p-4 pb-0">
+    <SidebarTrigger className="bg-[var(--secondary)] sticky top-4" />
     <MessageContainer />
     <SearchInput />
     <div key={selectedIndex} ref={bottomRef} />

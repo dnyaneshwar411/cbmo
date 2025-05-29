@@ -19,7 +19,6 @@ export default function ClearChatAlert(
 ) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const { clearChat } = useStateContext();
-
   function deleteChat() {
     clearChat(index)
     toast.success("Successfull!");
@@ -44,5 +43,4 @@ export default function ClearChatAlert(
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>
-
 }

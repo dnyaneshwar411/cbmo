@@ -19,7 +19,7 @@ export function StateContextProvider({ children }: { children: React.ReactNode }
   const [history, setHistory] = useLocalStorage<History[]>("history", [initChat]);
   useEffect(function () {
     dispatch(init(history));
-  }, []);
+  }, [history]);
 
   function addMessage(messages: Message[]) {
     for (const message of messages) {
@@ -29,13 +29,12 @@ export function StateContextProvider({ children }: { children: React.ReactNode }
       ? { ...chat, messages: [...chat.messages, ...messages] }
       : chat
     )
-    console.log(state.selectedIndex)
     setHistory(newHistory)
     dispatch(updateChats(newHistory, state.selectedIndex));
   }
 
   function clearChat(index: number | undefined) {
-    if (index !== undefined || history.length === 1) {
+    if (index === undefined || history.length === 1) {
       setHistory([initChat]);
       dispatch(updateChats([initChat], 0))
     } else {

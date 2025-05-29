@@ -5,35 +5,52 @@ import { NextRequest, NextResponse } from "next/server";
 
 const ai = new GoogleGenerativeAI(envVars.geminiKey || "");
 
-
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const userInput = body.text; // 
+  try {
+    const body = await req.json();
+    const userInput = body.text;
 
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    if (!userInput || typeof userInput !== "string") {
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      );
+    }
 
-  const result = await model.generateContentStream({
-    contents: [{ role: "user", parts: [{ text: userInput }] }],
-  });
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const encoder = new TextEncoder();
+    const result = await model.generateContentStream({
+      contents: [{ role: "user", parts: [{ text: userInput }] }],
+    });
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of result.stream) {
-        const text = chunk.text();
-        if (text) {
-          controller.enqueue(encoder.encode(text));
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
+              controller.enqueue(encoder.encode(text));
+            }
+          }
+          controller.close();
+        } catch (streamError) {
+          controller.error(streamError);
         }
-      }
-      controller.close();
-    },
-  });
+      },
+    });
 
-  return new NextResponse(stream, {
-    headers: {
-      "Content-Type": "text/plain",
-      "Cache-Control": "no-cache",
-    },
-  });
+    return new NextResponse(stream, {
+      headers: {
+        "Content-Type": "text/plain",
+        "Cache-Control": "no-cache",
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Something went wrong." },
+      { status: 500, }
+    );
+  }
 }

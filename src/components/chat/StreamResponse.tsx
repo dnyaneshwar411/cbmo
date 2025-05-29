@@ -10,7 +10,6 @@ export function StreamResponse() {
       <Markdown remarkPlugins={[remarkGfm]}>
         {answer}
       </Markdown>
-      <div className="text-sm text-muted-foreground mb-1">{answer}</div>
     </div>
   </div>;
 }

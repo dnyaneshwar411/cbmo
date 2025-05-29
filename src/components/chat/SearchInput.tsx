@@ -11,46 +11,58 @@ export default function SearchInput() {
   const { state, query, dispatch, addMessage: addMessageHistory } = useStateContext();
 
   async function sendQuery() {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: query,
+      role: "user",
+      file: undefined,
+    };
+
+    const aiMessage: Message = {
+      id: Date.now().toString() + "-ai",
+      content: "",
+      role: "bot",
+      file: undefined,
+    };
+
     try {
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: query,
-        role: "user",
-        file: undefined,
-      };
-      dispatch(addMessage(userMessage))
+      dispatch(addMessage(userMessage));
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: query }),
+        signal,
       });
 
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      const aiMessage: Message = {
-        id: Date.now().toString() + "-ai",
-        content: "",
-        role: "bot",
-        file: undefined,
-      };
+      if (!res.body) throw new Error("No response body");
 
-      if (!reader) throw new Error("Unable to get response stream.");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
       while (true) {
-        const { value, done } = await reader.read();
+        let result;
+        try {
+          result = await reader.read();
+        } catch (readError) {
+          toast.error("Network connection lost.");
+          throw readError;
+        }
+
+        const { value, done } = result;
         if (done) break;
-        const chunk = decoder.decode(value);
+
+        const chunk = decoder.decode(value, { stream: true });
         aiMessage.content += chunk;
         dispatch(changeValue("answer", aiMessage.content));
       }
-      addMessageHistory([userMessage, aiMessage])
+
+      addMessageHistory([userMessage, aiMessage]);
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Something went wrong. Please try again!");
-      }
-      dispatch(changeValue("error", "Failed to stream response"));
+      toast.error(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       dispatch(changeValue("state", "ready"));
     }

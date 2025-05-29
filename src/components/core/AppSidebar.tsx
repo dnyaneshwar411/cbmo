@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { VersionSwitcher } from "./VersionSwitcher"
+import { Branding } from "./Branding"
 import { SearchForm } from "./SearchForm"
 import { AlertDialogTrigger } from "../ui/alert-dialog"
 import ClearChatAlert from "../modals/ClearChatAlert"
@@ -23,7 +23,6 @@ import { Trash2 } from "lucide-react";
 import NewChatModal from "../modals/NewChatModal";
 import { selectChat } from "@/provider/reducer";
 
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { history, selectedIndex, dispatch } = useStateContext()
   const [query, setQuery] = useState("");
@@ -31,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <VersionSwitcher />
+        <Branding />
         <SearchForm
           query={query}
           setQuery={setQuery}
@@ -70,7 +69,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarRail />
       <SidebarFooter>
         <ClearChatAlert>
-          <AlertDialogTrigger className="cursor-pointer !bg-[var(--accent-1)] py-[6px] opacity-60 hover:opacity-100 rounded-[8px]">Clear Chats</AlertDialogTrigger>
+          <AlertDialogTrigger className="cursor-pointer !bg-[var(--accent-1)] py-[6px] opacity-80 hover:opacity-100 rounded-[8px]">
+            Clear Chats
+          </AlertDialogTrigger>
         </ClearChatAlert>
       </SidebarFooter>
     </Sidebar>
